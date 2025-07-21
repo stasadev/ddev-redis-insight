@@ -18,7 +18,7 @@ post_install_actions:
     fi
   - |
     #ddev-description:If Redis is optimized, set a password
-    if [ $(ddev dotenv get .ddev/.env.redis --redis-optimized 2>/dev/null) = "true" ]; then
+    if [ "$(ddev dotenv get .ddev/.env.redis --redis-optimized 2>/dev/null)" = "true" ]; then
       printf "#ddev-generated\nservices:\n  redis-insight:\n    environment:\n      - RI_REDIS_PASSWORD=redis\n" > docker-compose.redis-insight_password.yaml
     fi
   - |
