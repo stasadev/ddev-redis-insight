@@ -36,20 +36,43 @@ setup() {
   assert_success
   run ddev start -y
   assert_success
+
+  # Redis add-on is required for Redis Insight
+  run ddev add-on get ddev/ddev-redis
+  assert_success
+
+  export HAS_OPTIMIZED_CONFIG=false
 }
 
 health_checks() {
-  # Do something useful here that verifies the add-on
+  if [ "$HAS_OPTIMIZED_CONFIG" = "true" ]; then
+    assert_file_exist .ddev/docker-compose.redis-insight_password.yaml
+  else
+    assert_file_not_exist .ddev/docker-compose.redis-insight_password.yaml
+  fi
 
-  # You can check for specific information in headers:
-  # run curl -sfI https://${PROJNAME}.ddev.site
-  # assert_output --partial "HTTP/2 200"
-  # assert_output --partial "test_header"
-
-  # Or check if some command gives expected output:
-  DDEV_DEBUG=true run ddev launch
+  run curl -sfI http://${PROJNAME}.ddev.site:5539
   assert_success
-  assert_output --partial "FULLURL https://${PROJNAME}.ddev.site"
+  assert_output --partial "HTTP/1.1 200"
+  assert_output --partial "X-Powered-By: Express"
+
+  run curl -sf http://${PROJNAME}.ddev.site:5539
+  assert_success
+  assert_output --partial "<title>Redis Insight</title>"
+
+  run curl -sfI https://${PROJNAME}.ddev.site:5540
+  assert_success
+  assert_output --partial "HTTP/2 200"
+  assert_output --partial "x-powered-by: Express"
+
+  run curl -sf https://${PROJNAME}.ddev.site:5540
+  assert_success
+  assert_output --partial "<title>Redis Insight</title>"
+
+  # Make sure `ddev redis-insight` works
+  DDEV_DEBUG=true run ddev redis-insight
+  assert_success
+  assert_output --partial "FULLURL https://${PROJNAME}.ddev.site:5540"
 }
 
 teardown() {
@@ -66,6 +89,23 @@ teardown() {
 
 @test "install from directory" {
   set -eu -o pipefail
+  echo "# ddev add-on get ${DIR} with project ${PROJNAME} in $(pwd)" >&3
+  run ddev add-on get "${DIR}"
+  assert_success
+  run ddev restart -y
+  assert_success
+  health_checks
+}
+
+@test "install from directory with optimized Redis" {
+  set -eu -o pipefail
+
+  export HAS_OPTIMIZED_CONFIG=true
+
+  run ddev dotenv set .ddev/.env.redis --redis-optimized=true
+  assert_success
+  assert_file_exist .ddev/.env.redis
+
   echo "# ddev add-on get ${DIR} with project ${PROJNAME} in $(pwd)" >&3
   run ddev add-on get "${DIR}"
   assert_success

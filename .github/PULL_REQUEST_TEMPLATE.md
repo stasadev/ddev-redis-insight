@@ -13,6 +13,7 @@
 <!-- If this PR changes logic, consider adding additional steps or context to the instructions below. -->
 
 ```bash
+ddev add-on get ddev/ddev-redis
 ddev add-on get https://github.com/stasadev/ddev-redis-insight/tarball/refs/pull/REPLACE_ME_WITH_THIS_PR_NUMBER/head
 ddev restart
 ```
