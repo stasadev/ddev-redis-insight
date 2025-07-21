@@ -7,7 +7,17 @@
 
 ## Overview
 
+[Redis Insight](https://redis.io/insight/) is a visual tool that provides capabilities to design, develop, and optimize your Redis application. Query, analyse and interact with your Redis data.
+
 This add-on integrates Redis Insight into your [DDEV](https://ddev.com/) project.
+
+## Requirements
+
+Before installing this add-on, the [Redis service](https://github.com/ddev/ddev-redis) must be available:
+
+```bash
+ddev add-on get ddev/ddev-redis
+```
 
 ## Installation
 
@@ -22,15 +32,21 @@ After installation, make sure to commit the `.ddev` directory to version control
 
 | Command | Description |
 | ------- | ----------- |
+| `ddev redis-insight` | Open Redis Insight in your browser (`https://<project>.ddev.site:5540`) |
 | `ddev describe` | View service status and used ports for Redis Insight |
 | `ddev logs -s redis-insight` | Check Redis Insight logs |
 
 ## Advanced Customization
 
+You may need to adjust the password depending on your Redis configuration:
+
+* A `docker-compose.redis-insight_password.yaml` file is automatically created on install, if we detect that Redis needs one.
+* By default, the password is set via `REDIS_PASSWORD=redis` in that file. If you modify it, be sure to remove the `#ddev-generated` comment to prevent your changes from being overwritten.
+
 To change the Docker image:
 
 ```bash
-ddev dotenv set .ddev/.env.redis-insight --redis-insight-docker-image="busybox:stable"
+ddev dotenv set .ddev/.env.redis-insight --redis-insight-docker-image="redis/redisinsight:latest"
 ddev add-on get stasadev/ddev-redis-insight
 ddev restart
 ```
@@ -41,7 +57,7 @@ All customization options (use with caution):
 
 | Variable | Flag | Default |
 | -------- | ---- | ------- |
-| `REDIS_INSIGHT_DOCKER_IMAGE` | `--redis-insight-docker-image` | `busybox:stable` |
+| `REDIS_INSIGHT_DOCKER_IMAGE` | `--redis-insight-docker-image` | `redis/redisinsight:latest` |
 
 ## Credits
 
