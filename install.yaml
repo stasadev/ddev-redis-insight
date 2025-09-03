@@ -1,7 +1,7 @@
 name: redis-insight
 
 dependencies:
-  - redis
+  - ddev/ddev-redis
 
 project_files:
   - docker-compose.redis-insight.yaml
